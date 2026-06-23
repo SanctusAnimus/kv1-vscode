@@ -1,0 +1,99 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Valve KeyValues1",
+  "scopeName": "source.kv1",
+  "patterns": [
+    {
+      "include": "#comment"
+    },
+    {
+      "include": "#directive"
+    },
+    {
+      "include": "#inlineBlockOpener"
+    },
+    {
+      "include": "#keyValuePair"
+    },
+    {
+      "include": "#bareBlockKey"
+    },
+    {
+      "include": "#brace"
+    },
+    {
+      "include": "#string"
+    },
+    {
+      "include": "#invalid"
+    }
+  ],
+  "repository": {
+    "comment": {
+      "name": "comment.line.double-slash.kv1",
+      "match": "//.*$"
+    },
+
+    "directive": {
+      "name": "meta.directive.kv1",
+      "match": "^\\s*(#\\w+)\\s+(\"(?:\\\\.|[^\"])*\")",
+      "captures": {
+        "1": {
+          "name": "keyword.control.directive.kv1"
+        },
+        "2": {
+          "name": "string.quoted.double.path.kv1"
+        }
+      }
+    },
+
+    "inlineBlockOpener": {
+      "match": "(\"(?:\\\\.|[^\"])*\")(\\s*)(\\{)",
+      "captures": {
+        "1": {
+          "name": "variable.other.object.block-key.kv1"
+        },
+        "3": {
+          "name": "punctuation.section.block.begin.kv1"
+        }
+      }
+    },
+
+    "keyValuePair": {
+      "name": "meta.key-value.kv1",
+      "match": "(\"(?:\\\\.|[^\"])*\")(\\s+)(\"(?:\\\\.|[^\"])*\")",
+      "captures": {
+        "1": {
+          "name": "variable.other.member.key.kv1"
+        },
+        "3": {
+          "name": "string.quoted.double.value.kv1"
+        }
+      }
+    },
+
+    "bareBlockKey": {
+      "match": "^\\s*(\"(?:\\\\.|[^\"])*\")\\s*(?=//|$)",
+      "captures": {
+        "1": {
+          "name": "variable.other.object.block-key.kv1"
+        }
+      }
+    },
+
+    "brace": {
+      "name": "punctuation.section.block.kv1",
+      "match": "[{}]"
+    },
+
+    "string": {
+      "name": "string.quoted.double.kv1",
+      "match": "\"(?:\\\\.|[^\"])*\""
+    },
+
+    "invalid": {
+      "name": "invalid.illegal.kv1",
+      "match": "^\\s*[^\\s/#{}\"].*$"
+    }
+  }
+}

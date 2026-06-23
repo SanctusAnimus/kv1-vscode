@@ -1,0 +1,22 @@
+{
+	"Dota Ability Lua": {
+		"file": "dotaAbility.kv",
+		"prefix": "kvability",
+		"description": "Insert a basic Dota Lua ability block"
+	},
+	"AbilityValues Block": {
+		"file": "abilityValues.kv",
+		"prefix": "kvabilityvalues",
+		"description": "Insert an AbilityValues block"
+	},
+	"DOTA Unit": {
+		"file": "unit.kv",
+		"prefix": "kvunit",
+		"description": "Insert full Unit configuration"
+	},
+	"DOTA Item": {
+		"file": "item.kv",
+		"prefix": "kvitem",
+		"description": "Insert full Item configuration"
+	}
+}

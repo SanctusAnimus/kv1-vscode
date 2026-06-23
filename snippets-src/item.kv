@@ -1,0 +1,48 @@
+"item_recipe_${1:item_name}"
+{
+	"AbilityTextureName"	"item_recipe_${1:item_name}"
+	"Model"					"models/props_gameplay/recipe.vmdl"
+	"BaseClass"				"item_recipe_arcane_boots"
+	
+	"ItemCost"				"1"
+
+	"ItemRecipe"			"1"
+	"ItemResult"			"item_${1:item_name}"
+	"ItemRequirements"
+	{
+		"01"	""
+	}
+}
+"item_${1:item_name}"
+{
+	"BaseClass"						"item_lua"
+	"ScriptFile"					"items/${1:item_name}/${1:item_name}"
+	"AbilityBehavior"				"DOTA_ABILITY_BEHAVIOR_IMMEDIATE | DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IGNORE_CHANNEL"
+	"AbilityTextureName"			"item_${1:item_name}"
+	"SpellDispellableType"			"SPELL_DISPELLABLE_YES_STRONG"
+
+	"AbilitySharedCooldown"			""
+
+	"AbilityCooldown"				"15"
+	"AbilityManaCost"				"250"
+
+	"ItemAliases"					"damage;attack_speed;movespeed;hard_to_tag"
+	"ItemQuality"					"epic"
+	"ItemDisassembleRule"			"DOTA_ITEM_DISASSEMBLE_ALWAYS"
+
+	"ItemKillable"					"1"
+	"ItemSellable"					"1"
+	"ItemDroppable"					"1"
+	"ItemPurchasable"				"1"
+
+	"AbilityValues"
+	{
+		"damage"						"100"
+		"attack_speed"					"70"
+		"invis_duration"				"20"
+		"invis_movespeed_bonus_pct"		"30"
+		"invis_fade_time"				"0.3"
+		"invis_bonus_damage"			"800"
+		"break_duration"				"6"
+	}
+}
