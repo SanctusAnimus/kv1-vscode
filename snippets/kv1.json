@@ -57,7 +57,7 @@
   "DOTA Unit": {
     "prefix": "kvunit",
     "body": [
-      "\"${1:ability_name}\"",
+      "\"${1:unit_name}\"",
       "{",
       "\t\"BaseClass\"\t\t\t\t\t\"npc_dota_creature\"",
       "\t\"Model\"\t\t\t\t\t\t\"models/development/invisiblebox.vmdl\"",

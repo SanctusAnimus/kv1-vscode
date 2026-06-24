@@ -2,7 +2,7 @@
 	"name": "kv1-vscode",
 	"displayName": "Valve KeyValues1",
 	"description": "Syntax highlighting and diagnostics for Valve KeyValues1 files in DOTA2",
-	"version": "0.0.3",
+	"version": "0.0.5",
 	"publisher": "SanctusAnimus",
 	"engines": {
 		"vscode": "^1.100.0"
@@ -13,7 +13,8 @@
 	"activationEvents": [
 		"onLanguage:kv1",
 		"onCommand:kv1.configureDotaFileAssociations",
-		"onCommand:kv1.removeDotaFileAssociations"
+		"onCommand:kv1.removeDotaFileAssociations",
+		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -28,17 +29,9 @@
 				"extensions": [
 					".kv"
 				],
-				"filenamePatterns": [
-					"npc_heroes_custom.txt",
-					"npc_units_custom.txt",
-					"npc_abilities_custom.txt",
-					"npc_abilities_override.txt",
-					"npc_items_custom.txt",
-					"neutral_items.txt",
-					"herolist.txt",
-					"shops.txt",
+				"filenames": [
 					"custom.gameevents",
-					"npc_items_override.txt"
+					"shops.txt"
 				],
 				"configuration": "./language-configuration.json"
 			}
@@ -50,22 +43,21 @@
 				"path": "./syntaxes/kv1.tmLanguage.json"
 			}
 		],
-		"commands": [
-			{
-				"command": "kv1.configureDotaFileAssociations",
-				"title": "KV1: Configure Dota File Associations"
-			},
-			{
-				"command": "kv1.removeDotaFileAssociations",
-				"title": "KV1: Remove Dota File Associations"
-			}
-		],
 		"snippets": [
 			{
 				"language": "kv1",
 				"path": "./snippets/kv1.json"
 			}
-		]
+		],
+		"configurationDefaults": {
+			"[kv1]": {
+				"editor.quickSuggestions": {
+					"other": "on",
+					"comments": "off",
+					"strings": "on"
+				}
+			}
+		}
 	},
 	"scripts": {
 		"generate-snippets": "node scripts/generate-snippets.mjs",
