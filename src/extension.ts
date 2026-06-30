@@ -3,19 +3,18 @@ import * as path from "path";
 import { validateKv1 } from "./parser";
 import { registerKv1CompletionProvider } from "./completion";
 import { registerKv1HoverProvider } from "./hover";
+import { validateScriptFiles, VSCRIPTS_ROOT } from "./scriptFileDiagnostic";
 import { initializeKv1Schema } from "./kv1Schema";
+import { ScriptFileCompletionProvider } from "./scriptFileCompletion";
 
-let diagnostics: vscode.DiagnosticCollection;
-
-const KV1_DOTA_ASSOCIATIONS: Record<string, string> = {
-	"**/game/scripts/*.txt": "kv1",
-	"**/game/scripts/**/*.txt": "kv1",
-};
+const diagnostics: vscode.DiagnosticCollection = vscode.languages.createDiagnosticCollection("kv1");
+const scriptFileDiagnostics: vscode.DiagnosticCollection = vscode.languages.createDiagnosticCollection("kv1-scriptfile");
 
 const LANGUAGE_ID = "kv1";
 
 const MATCHERS: RegExp[] = [
     /^game\/scripts\/npc\/.*\.txt$/i,
+    /^game\/scripts\/upgrades\/.*\.txt$/i,
     /^game\/resource\/.*\.txt$/i
 ];
 
@@ -69,8 +68,8 @@ async function maybeSetDotaKvLanguage(document: vscode.TextDocument) {
 
 export function activate(context: vscode.ExtensionContext) {
 	initializeKv1Schema(context);
-	diagnostics = vscode.languages.createDiagnosticCollection("kv1");
 	context.subscriptions.push(diagnostics);
+	context.subscriptions.push(scriptFileDiagnostics);
 
 	registerKv1CompletionProvider(context);
 	registerKv1HoverProvider(context);
@@ -92,7 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
     );
 
 	const validateDocument = (document: vscode.TextDocument) => {
-		if (document.languageId !== "kv1") {
+		if (document.languageId !== LANGUAGE_ID) {
 			return;
 		}
 
@@ -104,6 +103,14 @@ export function activate(context: vscode.ExtensionContext) {
 	}
 
 	context.subscriptions.push(
+        vscode.languages.registerCompletionItemProvider(
+            { language: LANGUAGE_ID },
+            new ScriptFileCompletionProvider(),
+            "/", "\""
+        )
+    );
+
+	context.subscriptions.push(
 		vscode.workspace.onDidOpenTextDocument(validateDocument),
 		vscode.workspace.onDidSaveTextDocument(validateDocument),
 		vscode.workspace.onDidChangeTextDocument((event) => {
@@ -111,8 +118,57 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 		vscode.workspace.onDidCloseTextDocument((document) => {
 			diagnostics.delete(document.uri);
+			scriptFileDiagnostics.delete(document.uri);
 		})
 	);
+
+	context.subscriptions.push(
+        vscode.workspace.onDidOpenTextDocument(doc => {
+            if (doc.languageId === LANGUAGE_ID) {
+                void validateScriptFiles(doc, scriptFileDiagnostics);
+            }
+        }),
+
+        vscode.workspace.onDidChangeTextDocument(event => {
+            if (event.document.languageId === LANGUAGE_ID) {
+                void validateScriptFiles(event.document, scriptFileDiagnostics);
+            }
+        }),
+
+        vscode.workspace.onDidSaveTextDocument(doc => {
+            if (doc.languageId === LANGUAGE_ID) {
+                void validateScriptFiles(doc, scriptFileDiagnostics);
+            }
+        })
+    );
+
+    for (const doc of vscode.workspace.textDocuments) {
+        if (doc.languageId === LANGUAGE_ID) {
+            void validateScriptFiles(doc, scriptFileDiagnostics);
+        }
+	}	
+	
+	registerVScriptWatcher(context);
+}
+
+function registerVScriptWatcher(context: vscode.ExtensionContext) {
+    const watcher = vscode.workspace.createFileSystemWatcher(
+        `**/${VSCRIPTS_ROOT}/**/*.lua`
+    );
+
+    const revalidateOpenKvDocuments = () => {
+        for (const doc of vscode.workspace.textDocuments) {
+            if (doc.languageId === LANGUAGE_ID) {
+                void validateScriptFiles(doc, scriptFileDiagnostics);
+            }
+        }
+    };
+
+    watcher.onDidCreate(revalidateOpenKvDocuments);
+    watcher.onDidDelete(revalidateOpenKvDocuments);
+    watcher.onDidChange(revalidateOpenKvDocuments);
+
+    context.subscriptions.push(watcher);
 }
 
 export function deactivate() {

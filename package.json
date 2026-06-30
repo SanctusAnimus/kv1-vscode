@@ -2,7 +2,7 @@
 	"name": "kv1-vscode",
 	"displayName": "Valve KeyValues1",
 	"description": "Syntax highlighting and diagnostics for Valve KeyValues1 files in DOTA2",
-	"version": "0.0.5",
+	"version": "0.0.7",
 	"publisher": "SanctusAnimus",
 	"engines": {
 		"vscode": "^1.100.0"
