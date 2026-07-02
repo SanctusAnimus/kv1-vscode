@@ -3,7 +3,7 @@ import * as path from "path";
 import { validateKv1 } from "./parser";
 import { registerKv1CompletionProvider } from "./completion";
 import { registerKv1HoverProvider } from "./hover";
-import { validateScriptFiles, VSCRIPTS_ROOT } from "./scriptFileDiagnostic";
+import { validateScriptFiles, VSCRIPTS_ROOT, ScriptFileDocumentLinkProvider } from "./scriptFileDiagnostic";
 import { initializeKv1Schema } from "./kv1Schema";
 import { ScriptFileCompletionProvider } from "./scriptFileCompletion";
 
@@ -147,6 +147,13 @@ export function activate(context: vscode.ExtensionContext) {
             void validateScriptFiles(doc, scriptFileDiagnostics);
         }
 	}	
+
+	context.subscriptions.push(
+		vscode.languages.registerDocumentLinkProvider(
+			{ language: LANGUAGE_ID },
+			new ScriptFileDocumentLinkProvider()
+		)
+	);
 	
 	registerVScriptWatcher(context);
 }

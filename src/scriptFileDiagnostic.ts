@@ -72,6 +72,66 @@ export async function validateScriptFiles(document: vscode.TextDocument, scriptF
     scriptFileDiagnostics.set(document.uri, diagnostics);
 }
 
+export class ScriptFileDocumentLinkProvider implements vscode.DocumentLinkProvider {
+    async provideDocumentLinks(
+        document: vscode.TextDocument,
+        token: vscode.CancellationToken
+    ): Promise<vscode.DocumentLink[]> {
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+        if (!workspaceFolder) {
+            return [];
+        }
+
+        const links: vscode.DocumentLink[] = [];
+
+        for (let lineIndex = 0; lineIndex < document.lineCount; lineIndex++) {
+            if (token.isCancellationRequested) {
+                return links;
+            }
+
+            const line = document.lineAt(lineIndex).text;
+
+            const regex = /"ScriptFile"\s+"([^"]*)"/g;
+            let match: RegExpExecArray | null;
+
+            while ((match = regex.exec(line)) !== null) {
+                const rawValue = match[1];
+
+                const valueStart = match.index + match[0].indexOf(rawValue);
+                const valueEnd = valueStart + rawValue.length;
+
+                const targetUri = resolveLuaScriptPath(workspaceFolder, rawValue);
+                if (!targetUri) {
+                    continue;
+                }
+
+                // Optional: only make it clickable if the file really exists.
+                try {
+                    const stat = await vscode.workspace.fs.stat(targetUri);
+                    if (stat.type !== vscode.FileType.File) {
+                        continue;
+                    }
+                } catch {
+                    continue;
+                }
+
+                const range = new vscode.Range(
+                    lineIndex,
+                    valueStart,
+                    lineIndex,
+                    valueEnd
+                );
+
+                const link = new vscode.DocumentLink(range, targetUri);
+                link.tooltip = `Open ${rawValue.endsWith(".lua") ? rawValue : rawValue + ".lua"}`;
+
+                links.push(link);
+            }
+        }
+
+        return links;
+    }
+}
 
 function resolveLuaScriptPath(
     workspaceFolder: vscode.WorkspaceFolder,
