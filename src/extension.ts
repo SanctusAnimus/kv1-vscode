@@ -3,7 +3,7 @@ import * as path from "path";
 import { validateKv1 } from "./parser";
 import { registerKv1CompletionProvider } from "./completion";
 import { registerKv1HoverProvider } from "./hover";
-import { validateScriptFiles, VSCRIPTS_ROOT, ScriptFileDocumentLinkProvider } from "./scriptFileDiagnostic";
+import { validateScriptFiles, VSCRIPTS_ROOT, ScriptFileDocumentLinkProvider, ScriptFileCodeActionProvider, createAndEditFile } from "./scriptFileDiagnostic";
 import { initializeKv1Schema } from "./kv1Schema";
 import { ScriptFileCompletionProvider } from "./scriptFileCompletion";
 
@@ -15,6 +15,7 @@ const LANGUAGE_ID = "kv1";
 const MATCHERS: RegExp[] = [
     /^game\/scripts\/npc\/.*\.txt$/i,
     /^game\/scripts\/upgrades\/.*\.txt$/i,
+    /^game\/scripts\/shops\/.*\.txt$/i,
     /^game\/resource\/.*\.txt$/i
 ];
 
@@ -108,7 +109,23 @@ export function activate(context: vscode.ExtensionContext) {
             new ScriptFileCompletionProvider(),
             "/", "\""
         )
-    );
+	);
+	
+	context.subscriptions.push(
+		vscode.languages.registerCodeActionsProvider(
+			{ language: LANGUAGE_ID },
+			new ScriptFileCodeActionProvider(),
+			{
+				providedCodeActionKinds: [vscode.CodeActionKind.QuickFix]
+			}
+		)
+	);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand("dota-kv.createScriptFile", async (uri: vscode.Uri, rawValue: string) => {
+			await createAndEditFile(uri, rawValue);
+		})
+	);
 
 	context.subscriptions.push(
 		vscode.workspace.onDidOpenTextDocument(validateDocument),
